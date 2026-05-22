@@ -1,0 +1,6 @@
+[submodule "mobile"]
+	path = mobile
+	url = https://github.com/HoodieYlya13/teslimitless-native
+[submodule "esp32"]
+	path = esp32
+	url = https://github.com/HoodieYlya13/teslimitless-esp32
