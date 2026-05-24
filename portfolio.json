@@ -7,7 +7,7 @@
   "project_meta": {
     "role": "Lead Embedded & Mobile Systems Engineer",
     "development_phase": "Functional Prototype (4th-Year Capstone)",
-    "languages": ["C++", "TypeScript"],
+    "languages": ["C++", "TypeScript", "Python"],
     "frameworks_and_tools": [
       "ESP32",
       "FreeRTOS",
