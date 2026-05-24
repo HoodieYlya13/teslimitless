@@ -7,7 +7,7 @@
 
 ## 📌 Project Overview
 
-**TesLimitless** is an advanced vehicle-integration platform designed to intercept, decode, and customize the communication networks of a **Tesla Model 3 Highland**. By tapping into the car’s internal **CAN-bus** and **LIN-bus** networks, this project delivers a custom-designed real-time Heads-Up Display (HUD) and physical customization controls (such as steering wheel button remapping and a custom-manufactured turn signal stalk) without interfering with safety-critical systems.
+**TesLimitless** is an advanced vehicle-integration platform designed to intercept, decode, and customize the communication networks of a **Tesla Model 3 Highland**. By tapping into the car’s internal network (strictly reading and writing CAN-bus frames non-invasively through the **Tesla diagnostic port** and acting as an inline physical **LIN-bus Man-in-the-Middle** gateway on the steering wheel control harness), this project delivers a custom-designed real-time Heads-Up Display (HUD) and physical customization controls (such as turn signal and scroll wheel remapping) without interfering with safety-critical powertrain systems.
 
 ![System Schema](https://hy13dev.com/img/teslimitless-schema.png)
 
@@ -21,16 +21,15 @@ The project is split across two core domains to ensure high performance, stabili
 
 Powered by an ESP32 microcontroller running **FreeRTOS** with asymmetric dual-core processing:
 
-- **Core 1 (Safety-Critical & LIN-bus):** Dedicated exclusively to handling steering wheel LIN-bus inputs. This isolation guarantees deterministic, latency-free button remapping (e.g., custom actions mapped to steering wheel scroll wheels or buttons) with zero risk of starvation or delay.
-- **Core 2 (Networking & CAN-bus):** Manages high-throughput CAN-bus message processing (speed, battery metrics, turn signals, gears) and handles the Bluetooth Low Energy (BLE) server to stream telemetry to the companion app.
+- **Core 1 (Safety-Critical & LIN-bus):** Dedicated exclusively to the active steering wheel LIN-bus MITM transceiver gateway. When a capacitive touch button or scroll wheel event is polled, Core 1 intercepts the frame in sub-1.5ms, sends a mock "idle" response to the vehicle's body controller to silent standard actions, and queues custom commands for injection.
+- **Core 2 (Networking & CAN-bus):** Handles high-throughput vehicle telemetry reading and custom frame injection over CAN-bus via the vehicle's diagnostic port. Simultaneously manages the low-overhead BLE GATT server to stream dashboard telemetry and receive custom configuration remapping tables from the companion app.
 
 ### 2. Custom HUD & Companion App (`/mobile`)
 
-A high-performance **React Native** application built to serve as a minimalist, dark-themed landscape HUD:
+A high-performance **React Native** application built to serve as a minimalist, dark-themed landscape HUD and customization controller:
 
-- Real-time BLE telemetry connection to the ESP32.
-- Dashboard indicating current speed, battery percentage, real-time range, gear selection (`P R N D`), and dynamic turn signals.
-- Steering wheel customization interface to bind custom events directly to the vehicle's hardware inputs.
+- **Real-time Telemetry Dashboard:** Connects over BLE to display real-time speed, battery percentage, range status, gear selector, turn signals, and a dynamic SVG power/regen visualization arc.
+- **Customization Mapping Hub:** Provides a steering wheel customization interface to dynamically bind custom event macros directly to vehicle hardware inputs (for example, remapping a capacitive left turn signal button touched/pressed event to toggle the vehicle's comfort mode profile). Custom mappings are serialized and streamed over BLE to the ESP32.
 
 ---
 

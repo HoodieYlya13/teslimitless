@@ -1,0 +1,67 @@
+{
+  "routing": {
+    "repo_name": "teslimitless",
+    "project_name": "TesLimitless",
+    "hero_image": "https://hy13dev.com/img/teslimitless-app.png"
+  },
+  "project_meta": {
+    "role": "Lead Embedded & Mobile Systems Engineer",
+    "development_phase": "Functional Prototype (4th-Year Capstone)",
+    "languages": ["C++", "TypeScript"],
+    "frameworks_and_tools": [
+      "ESP32",
+      "FreeRTOS",
+      "Arduino Core",
+      "React Native",
+      "LIN-bus (TJA1021)",
+      "CAN-bus (MCP2515)",
+      "react-native-ble-plx",
+      "SPI & UART Protocols",
+      "Resistor Ladder Network",
+      "CAD"
+    ]
+  },
+  "comprehensive_description": "An advanced hardware-software vehicle integration platform engineered to safely intercept, decode, and customize the communication networks of a Tesla Model 3 Highland. Running a custom asymmetric dual-core FreeRTOS C++ firmware stack on an ESP32, the system acts as a real-time Man-in-the-Middle (MITM) gateway at 19200 baud between the car body controller and steering wheel capacitive button clusters on the physical LIN-bus. When a steering button (such as turn signals, high beams, camera, wipers, or thumbwheels) is pressed, the ESP32 intercepts the frame, transmits a mock 'idle' payload to the vehicle body controller over LIN to mask the factory command, and translates the input into a custom CAN-bus macro injected safely via the vehicle's diagnostic port. The landscape React Native companion app acts as both a real-time HUD (displaying speedometer, state-of-charge, active turn signals, and dynamic power/regen arcs) and a customization mapping controller. Users can dynamically remap steering wheel controls via the mobile UI—for example, binding a left turn signal input to toggle the vehicle's Comfort Mode profile—streaming configuration mapping tables over BLE to the ESP32 for active execution.",
+  "engineering_highlights": [
+    "Architected an active Man-in-the-Middle (MITM) LIN-bus gateway (19200 baud) using dual HardwareSerial lines on the ESP32 to intercept and rewrite capacitive turn signal, wiper, camera, and thumbwheel commands.",
+    "Developed a custom remapping system that intercepts steering wheel LIN-bus frames, dynamically injects spoofed 'idle' payloads to mask physical inputs from the vehicle body controller, and translates those inputs into custom CAN-bus macros.",
+    "Designed a non-invasive CAN integration connecting the ESP32 to the high-speed vehicle network strictly through the Tesla diagnostic port, reading live telemetry and injecting remapped command frames safely.",
+    "Leveraged high-priority FreeRTOS task pinning to bind safety-critical LIN-bus frame interception loops directly to Core 1, ensuring microsecond-accurate determinism with zero risk of processing starvation.",
+    "Engineered an analog resistor-ladder button network (SW1 to SW5) on ESP32 GPIO 34 as a secondary input simulator for bench-testing CAN-bus injection routines prior to physical LIN-bus integration.",
+    "Designed a custom, landscape-optimized React Native cockpit HUD using react-native-ble-plx that performs smooth state-interpolation of telemetry, rendering an interactive, color-coded battery status indicator and a dynamic SVG power/regen visualization arc."
+  ],
+  "measurable_metrics": {
+    "execution_latency": "Sub-1.5ms LIN-bus active MITM interception and forwarding latency; under 10ms CAN-bus sniffing and decoding cycle; sub-16ms update periods for BLE telemetry streaming.",
+    "ui_performance": "Hardware-accelerated rendering of the dynamic SVG power/regen visualization arc; telemetry state changes processed with sub-16ms UI updates matching the BLE streaming cycle.",
+    "operational_cost": "Zero server or external runtime expenses utilizing strictly direct on-device peripheral decoding and local P2P Bluetooth communication."
+  },
+  "star_challenges": [
+    {
+      "situation": "Real-time LIN-bus master-slave communication on the Tesla Model 3 Highland requires steering wheel responses to body controller poll queries to be processed and forwarded within a strict 1-2ms response window to prevent frame timeout errors. Executing slow BLE transport, analog polling, or high-throughput CAN sniffing on a single-thread loop caused execution delays, leading to LIN response timeouts, haptic system dropouts, and vehicle communication error codes.",
+      "action": "Leveraged an asymmetric dual-core FreeRTOS C++ firmware layout on the ESP32. Locked the safety-critical, time-sensitive LIN-bus MITM transceiver listener and injector tasks directly to Core 1 using high-priority FreeRTOS task pinning, while offloading high-throughput CAN packet sniffing, analog edge-trigger checks, and BLE client streaming to Core 2.",
+      "result": "Completely isolated the physical LIN-bus MITM intercept loop from networking and display overhead, guaranteeing deterministic sub-1.5ms response forwarding with zero LIN-bus timeout errors or haptic system dropouts.",
+      "inline_image": ""
+    },
+    {
+      "situation": "Initial attempts to hijack capacitive turn signals and column commands directly on the high-speed chassis CAN-bus suffered from severe bus noise, packet collisions, and could not easily bypass or prevent the car's default factory responses to physical stalk presses.",
+      "action": "Shifted the engineering strategy to place the ESP32 directly as a physical MITM gateway on the steering wheel LIN-bus. Reverse-engineered the capacitive button touch profiles and programmed the ESP32 to selectively overwrite these packets, returning a spoofed 'idle' state to the car's body controller over LIN-bus while generating and transmitting customized commands over the high-speed CAN-bus instead.",
+      "result": "Enabled absolute control over Highland capacitive inputs—effectively remapping turn signals, wipers, and media scrolls to custom macros without triggering default factory actions or dashboard error alerts.",
+      "inline_image": ""
+    },
+    {
+      "situation": "Streaming large JSON telemetry payloads or raw packets directly via Bluetooth Low Energy saturated the characteristic bandwidth, causing packet buffering, lagging speedometers, and jerky HUD UI updates in the React Native companion app.",
+      "action": "Implemented an efficient, compacted telemetry data structure mapping compressed values directly to the BLE GATT server notification loop, coupled with a customized requestAnimationFrame-based timing interpolator in the React Native state manager.",
+      "result": "Bypassed mobile OS Bluetooth transmission buffers, delivering fluid, jitter-free dashboard telemetry updates and achieving a response lag below 16ms for real-time turn signal and power animations.",
+      "inline_image": ""
+    }
+  ],
+  "architectural_deep_dive": {
+    "text": "The platform connects a dual-core ESP32 processor to an MCP2515 CAN controller via high-speed SPI (GPIO 5 as CS) and a dual TJA1021 LIN-bus transceiver array. The LIN interface acts as a physical MITM gateway (pins 16/17 for body controller, pins 32/33 for capacitive steering assembly) to capture turn signal and stalk inputs. By returning mock idle payloads over LIN, the ESP32 overrides standard vehicle controls. For CAN integration, the controller interfaces directly with the vehicle's diagnostic port, reading high-speed telemetry frames and injecting remapped actions safely. These low-level processing domains are isolated on-chip using FreeRTOS core-affinity mapping, broadcasting dynamic state changes up to the landscape React Native cockpit HUD app over a custom BLE GATT notification service (12345678-1234-5678-1234-56789abcdef0), which concurrently transmits user customization mappings back to the transceiver controller.",
+    "illustration": {
+      "url": "https://hy13dev.com/img/teslimitless-schema.png",
+      "alt": "TesLimitless Asymmetric Dual-Core System Architecture Schema",
+      "caption": "Hardware and software layer separation routing Core 1 and Core 2 tasks through physical transceivers."
+    }
+  },
+  "lessons_learned": "When dealing with real-time vehicle electronics integration, safety-critical bus loops must enforce strict hardware-level isolation boundaries and deterministic watchdog safety circuits using multi-core OS features like FreeRTOS before introducing high-level networking features."
+}
