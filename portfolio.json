@@ -65,3 +65,4 @@
   },
   "lessons_learned": "When dealing with real-time vehicle electronics integration, safety-critical bus loops must enforce strict hardware-level isolation boundaries and deterministic watchdog safety circuits using multi-core OS features like FreeRTOS before introducing high-level networking features."
 }
+
