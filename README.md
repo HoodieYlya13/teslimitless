@@ -1,13 +1,20 @@
 # TesLimitless ⚡
 
 > **Tesla Model 3 Highland Hardware & Software Integration**  
-> _A 4th-Year Engineering Project focusing on protocol reverse engineering, real-time telemetry HUD, and low-level steering/LIN button customization._
+> _A 4th-Year Engineering Project restoring physical control stalks and enabling low-level steering wheel button remapping via an ESP32 LIN-bus gateway and React Native companion app._
 
 ---
 
 ## 📌 Project Overview
 
-**TesLimitless** is an advanced vehicle-integration platform designed to intercept, decode, and customize the communication networks of a **Tesla Model 3 Highland**. By tapping into the car’s internal network (strictly reading and writing CAN-bus frames non-invasively through the **Tesla diagnostic port** and acting as an inline physical **LIN-bus Man-in-the-Middle** gateway on the steering wheel control harness), this project delivers a custom-designed real-time Heads-Up Display (HUD) and physical customization controls (such as turn signal and scroll wheel remapping) without interfering with safety-critical powertrain systems.
+The **Tesla Model 3 Highland** famously removed all physical steering column stalks (turn signals, high beams, and wipers), replacing them with controversial capacitive touch buttons on the steering wheel. 
+
+**TesLimitless** is a premium, non-invasive hardware-software retrofitting platform designed to:
+1. **Restore Physical Control Stalks:** Add custom-engineered physical turn-signal and high-beam stalks back onto the steering column.
+2. **Repurpose Steering Wheel Buttons:** Intercept and remap the now-redundant factory capacitive buttons to perform custom vehicle macros (e.g., pressing the original capacitive high-beam button to toggle Comfort/Sport acceleration modes or passenger controls).
+3. **Dynamic Customization & Telemetry HUD:** Manage and configure these button mappings on the fly via a landscape React Native companion app over Bluetooth (BLE) that doubles as a real-time cockpit Heads-Up Display (HUD).
+
+By acting as an inline physical **LIN-bus Man-in-the-Middle (MITM) gateway** on the steering wheel harness and injecting custom commands via the **CAN-bus diagnostic port**, TesLimitless achieves this high-impact customization safely and seamlessly.
 
 ![System Schema](https://hy13dev.com/img/teslimitless-schema.png)
 
@@ -54,10 +61,10 @@ To protect the hard-won reverse-engineering schemas, raw protocol DBC files, and
 - Utilizes **FreeRTOS** tasks bound to specific ESP32 cores.
 - A strict hardware watchdog architecture ensures that even if wireless networking tasks on Core 2 stall, Core 1's safety-critical LIN loop continues running continuously with microsecond response times.
 
-### 📐 CAD & Rapid Prototyping
+### 📐 CAD & Mechanical Retrofitting
 
-- Designed, iterated, and manufactured a fully functional, **3D-printed mechanical turn signal stalk integration**.
-- Custom mount housing for transceivers, voltage regulators, and the ESP32 module, fitting seamlessly behind the steering column.
+- **Physical Stalk Restoration:** Custom-designed, prototyped, and manufactured a highly functional mechanical turn-signal and high-beam stalk retrofitted directly onto the Highland steering column.
+- **OEM-Grade Integration:** Designed a custom 3D-printed enclosure fitting seamlessly behind the steering wheel to house the ESP32, dual transceivers, and voltage regulators with factory-level aesthetics.
 
 ### 📱 Wireless Telemetry Ecosystem
 
